@@ -1,57 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { useState, Suspense } from "react";
+import { Route, Router, Switch } from "react-router";
+import { createBrowserHistory } from "history";
+
+import "./App.css";
+import { Grid, CircularProgress } from "@mui/material";
+
+import Home from "./pages/Home";
+import Nav from "./components/navigation/Nav";
+
+const PageNotFound = React.lazy(() => import("./pages/404"));
+const Favourites = React.lazy(() => import("./pages/Favourites"));
+const MovieDetail = React.lazy(() => import("./pages/MovieDetail"));
+
+const history = createBrowserHistory();
 
 function App() {
+  const [pageTitle, setPageTitle] = useState();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
+    <Router history={history}>
+      <header>
+        <Nav pageTitle={pageTitle} />
       </header>
-    </div>
+      <Grid component="main" container>
+        <Grid item xs={12} md={8} sx={{ mx: "auto" }}>
+          <Suspense
+            fallback={
+              <Grid container item justifyContent="center">
+                <CircularProgress size={200} />
+              </Grid>
+            }
+          >
+            <Switch>
+              <Route path="/" exact>
+                <Home setPageTitle={setPageTitle} />
+              </Route>
+              <Route path="/favourites" exact>
+                <Favourites setPageTitle={setPageTitle} />
+              </Route>
+              <Route path="/movie-detail/:movieId">
+                <MovieDetail setPageTitle={setPageTitle} />
+              </Route>
+              <Route path="*">
+                <PageNotFound setPageTitle={setPageTitle} />
+              </Route>
+            </Switch>
+          </Suspense>
+        </Grid>
+      </Grid>
+    </Router>
   );
 }
 
